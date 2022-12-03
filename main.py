@@ -5,11 +5,12 @@ import time
 import numpy as np
 from imutils import paths
 import imutils
+import initialization_sequence
 
 #VIDEO_SOURCE = 'http://nyn_cam:Means1122@192.168.1.92:8080/video'
 VIDEO_SOURCE = 1
 VIEW_MODE = True
-FPS_ON = True
+FPS_ON = False
 
 def displayQRBounds(im, bbox):
     n = len(bbox)
@@ -27,6 +28,8 @@ def main():
     new_frame_time = 0
     old_frame = frame
 
+    initialization_sequence.initFocalLength()
+
     while True:
         new_frame_time = time.time()
 
@@ -36,7 +39,7 @@ def main():
                 break
 
         frame = stream_getter.getFrame()
-        
+
         if not stream_getter.getRetrieved():
             print("Can't retrieve frame. Exiting...")
             break

@@ -14,8 +14,8 @@ class Agent:
 
     def detectQR(self, frame):
         self.data, self.bbox, self.rectified_image = self.qr_detector.detectAndDecode(frame)
-        
     def drawBounds(self, frame):
+
         if (self.isDetected()) and (self.bbox is not None):
             bb_pts = self.bbox.astype(int).reshape(-1, 2)
             num_bb_pts = len(bb_pts)
@@ -42,6 +42,12 @@ class Agent:
         edged = cv.Canny(gray, 35, 125)
         # find the contours in the edged image
         self.contours = cv.findContours(edged.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
-        
+
     def drawContours(self, frame):
         cv.drawContours(frame, self.contours[0], -1, (0, 255, 0), 3)
+
+    def calculateFocalLength(self, measured_distance, real_width, width_in_rf_image):
+        self.focal_length = (width_in_rf_image * measured_distance) / real_width
+
+    def getFocalLength(self):
+        return self.focal_length
