@@ -7,10 +7,13 @@ from imutils import paths
 import imutils
 import initialization_sequence
 
-#VIDEO_SOURCE = 'http://nyn_cam:Means1122@192.168.1.92:8080/video'
-VIDEO_SOURCE = 1
-VIEW_MODE = True
-FPS_ON = False
+VIDEO_SOURCE = 'http://nyn_cam:Means1122@192.168.1.92:8080/video'
+#VIDEO_SOURCE = 1
+VIEW_MODE = False
+FPS_ON = True
+NO_FRAME_FPS_ON = False
+
+TURN_TOLERANCE = 50 # pixels
 
 def displayQRBounds(im, bbox):
     n = len(bbox)
@@ -22,7 +25,7 @@ def main():
     stream_getter.startStream()
     frame = stream_getter.getFrame()
 
-    agent = Agent()
+    agent = Agent(TURN_TOLERANCE, VIEW_MODE)
 
     prev_frame_time = 0
     new_frame_time = 0
@@ -45,7 +48,7 @@ def main():
             break
 
         if np.array_equal(frame, old_frame):
-            if FPS_ON:
+            if NO_FRAME_FPS_ON:
                 print("MAIN BREAK: " + str(1/(new_frame_time-prev_frame_time)))
                 prev_frame_time = new_frame_time
             continue
@@ -53,8 +56,9 @@ def main():
             old_frame = frame
             # process frame here
             agent.process(frame)
+            agent.keepQRInMid(frame)
             if VIEW_MODE:
-                agent.draw(frame)
+                #agent.draw(frame)
                 cv.imshow('agent', frame)
 
         if FPS_ON:

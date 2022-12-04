@@ -1,12 +1,19 @@
 import cv2 as cv
 
 class Agent:
-    def __init__(self):
+    def __init__(self, turn_tolerance, VIEW_MODE):
         self.qr_detector = cv.QRCodeDetector()
+        self.turn_tolerance = turn_tolerance
+        self.VIEW_MODE = VIEW_MODE
 
     def process(self, frame):
-        self.detectQR(frame)
-        self.findContours(frame)
+        try:
+            self.detectQR(frame)
+            #self.findContours(frame)
+            self.findQRMid(frame)
+        except:
+            print("agent couldn't process frame")
+            return
 
     def draw(self, frame):
         self.drawBounds(frame)
@@ -14,6 +21,7 @@ class Agent:
 
     def detectQR(self, frame):
         self.data, self.bbox, self.rectified_image = self.qr_detector.detectAndDecode(frame)
+    
     def drawBounds(self, frame):
 
         if (self.isDetected()) and (self.bbox is not None):
@@ -51,3 +59,34 @@ class Agent:
 
     def getFocalLength(self):
         return self.focal_length
+
+    def findQRMid(self, frame):
+        # find the middle point of QR
+        if self.bbox is not None:
+            first_x, first_y = self.bbox[0][0][0] + self.bbox[0][2][0], self.bbox[0][0][1] + self.bbox[0][2][1]
+            first_x, first_y = first_x/2, first_y/2
+            second_x, second_y = self.bbox[0][1][0] + self.bbox[0][3][0], self.bbox[0][1][1] + self.bbox[0][3][1]
+            second_x, second_y = second_x/2, second_y/2
+            x_coord = (first_x + second_x)/2
+            y_coord = (first_y + second_y)/2
+            self.qr_mid_x = x_coord
+            self.qr_mid_y = y_coord
+            if self.VIEW_MODE:
+                cv.circle(frame, (int(x_coord), int(y_coord)), radius=10, color=(0, 0, 255), thickness=-1)
+
+    def keepQRInMid(self, frame):
+        if self.bbox is not None:
+            # find center of frame
+            height, width = frame.shape[:2]
+            mid_x = int(width/2)
+            mid_y = int(height/2)
+            if self.VIEW_MODE:
+                cv.circle(frame, (mid_x, mid_y), radius=10, color=(255, 0, 0), thickness=-1)
+
+            # compare mid-qr
+            if hasattr(self, 'qr_mid_x') and hasattr(self, 'qr_mid_y'):
+                if self.qr_mid_x - mid_x > self.turn_tolerance:
+                    print("turn right")
+                elif self.qr_mid_x - mid_x < -self.turn_tolerance:
+                    print("turn left")
+            
