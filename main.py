@@ -6,8 +6,9 @@ import numpy as np
 from imutils import paths
 import imutils
 import initialization_sequence
+import serial
 
-VIDEO_SOURCE = 'http://nyn_cam:Means1122@192.168.1.92:8080/video'
+VIDEO_SOURCE = 'http://nyn_cam:Means1122@192.168.43.1:8080/video'
 #VIDEO_SOURCE = 1
 VIEW_MODE = False
 FPS_ON = True
@@ -21,6 +22,9 @@ def displayQRBounds(im, bbox):
         cv.line(im, tuple(bbox[j][0]), tuple(bbox[ (j+1) % n][0]), (255,0,0), 3)
 
 def main():
+    ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+    ser.reset_input_buffer()
+
     stream_getter = StreamGetter(VIDEO_SOURCE)
     stream_getter.startStream()
     frame = stream_getter.getFrame()
@@ -56,7 +60,13 @@ def main():
             old_frame = frame
             # process frame here
             agent.process(frame)
-            agent.keepQRInMid(frame)
+            response = agent.keepQRInMid(frame)
+            if response is not None:
+                ser.write((str(response)+'/n').encode('utf-8'))
+                print("sent ")
+                print(response)
+                line = ser.readline().decode('utf-8').rstrip()
+                print(line)
             if VIEW_MODE:
                 #agent.draw(frame)
                 cv.imshow('agent', frame)

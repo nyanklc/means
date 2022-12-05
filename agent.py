@@ -87,6 +87,10 @@ class Agent:
             if hasattr(self, 'qr_mid_x') and hasattr(self, 'qr_mid_y'):
                 if self.qr_mid_x - mid_x > self.turn_tolerance:
                     print("turn right")
+                    return 0
                 elif self.qr_mid_x - mid_x < -self.turn_tolerance:
                     print("turn left")
+                    return 1
+                else:
+                    return 2
             
