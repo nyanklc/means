@@ -12,9 +12,13 @@ class StreamGetter:
         self.new_frame_time = 0
 
     def startStream(self):
-        self.th = Thread(target = self.getStream, args = ())
-        self.th.start()
-        return self
+        try:
+            self.th = Thread(target = self.getStream, args = ())
+            self.th.start()
+        except any:
+            print("Stream getter thread couldn't start.")
+            return False
+        return True
 
     def getStream(self):
         while not self.stopped:
