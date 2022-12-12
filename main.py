@@ -4,17 +4,7 @@ from agent import Agent
 import time
 import numpy as np
 import serial
-
-VIDEO_SOURCE = 'http://nyn_cam:Means1122@144.122.184.22:8080/video'
-#VIDEO_SOURCE = 1
-VIEW_MODE = False
-FPS_ON = True
-NO_FRAME_FPS_ON = False
-SERIAL_ON = False
-TURN_TOLERANCE = 50 # pixels    
-CALIBRATE_MODE = True
-CALIBRATE_MODE_TRIAL_COUNT = 10
-QR_LENGTH = 10
+from params import *
 
 def main():
     # serial
@@ -26,7 +16,7 @@ def main():
     stream_getter = StreamGetter(VIDEO_SOURCE)
     stream_getter.startStream()
     frame = stream_getter.getFrame()
-    agent = Agent(TURN_TOLERANCE, VIEW_MODE, QR_LENGTH)
+    agent = Agent(TURN_TOLERANCE, VIEW_MODE, QR_LENGTH, REFERENCE_IMG_PATH, QR_ENABLED, CONTOUR_ENABLED, MIDP_ENABLED, BF_ENABLED)
 
     # camera calibration
     if (not agent.isCalibrated()) and CALIBRATE_MODE:
@@ -39,6 +29,8 @@ def main():
                         break
                 else:
                     trials += 1
+                    if not QR_ENABLED:
+                        exit()
                     if trials == CALIBRATE_MODE_TRIAL_COUNT:
                         print("Camera calibration failed, terminating.")
                         exit()
@@ -69,7 +61,7 @@ def main():
             if NO_FRAME_FPS_ON:
                 print("MAIN BREAK: " + str(1/(new_frame_time-prev_frame_time)))
                 prev_frame_time = new_frame_time
-            continue 
+            continue
         old_frame = frame
         frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
