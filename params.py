@@ -1,7 +1,7 @@
 # cv
-VIDEO_SOURCE = 'http://nyn_cam:Means1122@144.122.184.22:8080/video'
-#VIDEO_SOURCE = 1
-VIEW_MODE = False
+#VIDEO_SOURCE = 'http://nyn_cam:Means1122@144.122.184.22:8080/video'
+VIDEO_SOURCE = 1
+VIEW_MODE = True
 FPS_ON = True
 NO_FRAME_FPS_ON = False
 
@@ -12,9 +12,9 @@ SERIAL_ON = False
 TURN_TOLERANCE = 50 # pixels
 CALIBRATE_MODE = True
 CALIBRATE_MODE_TRIAL_COUNT = 10
-REFERENCE_IMG_PATH = './ref_img/ref_img.png'
-QR_ENABLED = True
-CONTOUR_ENABLED = True
-MIDP_ENABLED = True
+REFERENCE_IMG_PATH = 'ref_img/ref_img.jpeg'
+QR_ENABLED = False
+CONTOUR_ENABLED = False
+MIDP_ENABLED = False
 BF_ENABLED = True
 QR_LENGTH = 10
