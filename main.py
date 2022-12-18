@@ -1,32 +1,22 @@
 import cv2 as cv
 from stream_getter import StreamGetter
 from agent import Agent
+from serial_handler import SerialHandler
 import time
 import numpy as np
 import serial
-
-VIDEO_SOURCE = 'http://nyn_cam:Means1122@144.122.184.22:8080/video'
-#VIDEO_SOURCE = 1
-VIEW_MODE = False
-FPS_ON = True
-NO_FRAME_FPS_ON = False
-SERIAL_ON = False
-TURN_TOLERANCE = 50 # pixels    
-CALIBRATE_MODE = True
-CALIBRATE_MODE_TRIAL_COUNT = 10
-QR_LENGTH = 10
+from params import *
 
 def main():
     # serial
     if SERIAL_ON:
-        ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-        ser.reset_input_buffer()
+        serialh = SerialHandler(SERIAL_PORT, SERIAL_BAUDRATE)
 
     # init modules
     stream_getter = StreamGetter(VIDEO_SOURCE)
     stream_getter.startStream()
     frame = stream_getter.getFrame()
-    agent = Agent(TURN_TOLERANCE, VIEW_MODE, QR_LENGTH)
+    agent = Agent(TURN_TOLERANCE, VIEW_MODE, QR_LENGTH, REFERENCE_IMG_PATH, QR_ENABLED, CONTOUR_ENABLED, MIDP_ENABLED, KNN_ENABLED, OBJ_LENGTH)
 
     # camera calibration
     if (not agent.isCalibrated()) and CALIBRATE_MODE:
@@ -39,6 +29,8 @@ def main():
                         break
                 else:
                     trials += 1
+                    if not QR_ENABLED:
+                        exit()
                     if trials == CALIBRATE_MODE_TRIAL_COUNT:
                         print("Camera calibration failed, terminating.")
                         exit()
@@ -69,13 +61,15 @@ def main():
             if NO_FRAME_FPS_ON:
                 print("MAIN BREAK: " + str(1/(new_frame_time-prev_frame_time)))
                 prev_frame_time = new_frame_time
-            continue 
+            continue
         old_frame = frame
         frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
         # process frame
-        agent.process(frame)
-        controls = agent.generateControls()
+        process_results_qr_distance, process_results_obj_corners, process_results_obj_distance = agent.process(frame)
+        controls = []
+        if (process_results_qr_distance != None) and (process_results_obj_corners != None):
+            controls = agent.generateControls(process_results_qr_distance, process_results_obj_corners, process_results_obj_distance)
 
         # output
         if VIEW_MODE:
@@ -84,6 +78,13 @@ def main():
         if FPS_ON:
             print("MAIN: " + str(1/(new_frame_time-prev_frame_time)))
             prev_frame_time = new_frame_time
+        if SERIAL_ON:
+            controls = process_results_obj_distance
+            serialh.sendMsg(controls)
+            if ARDUINO_RESPONSE_ON:
+                arduino_response = serialh.getMsg()
+                if arduino_response is not None:
+                    print(arduino_response)
 
     stream_getter.endStream()
 

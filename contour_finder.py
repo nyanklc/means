@@ -17,5 +17,3 @@ class ContourFinder:
 
     def drawContours(self, frame):
         cv.drawContours(frame, self.contours[0], -1, (0, 255, 0), 3)
-
-    

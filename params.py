@@ -1,0 +1,30 @@
+# stream
+# VIDEO_SOURCE = 'http://nyn_cam:Means1122@144.122.181.48:8080/video'
+# VIDEO_SOURCE = 1
+VIDEO_SOURCE = 0
+VIEW_MODE = False
+
+# serial
+SERIAL_ON = True
+SERIAL_PORT = '/dev/ttyUSB0'
+SERIAL_BAUDRATE = 9600
+ARDUINO_RESPONSE_ON = True
+
+# agent
+TURN_TOLERANCE = 50 # pixels
+QR_ENABLED = False
+
+CONTOUR_ENABLED = False
+MIDP_ENABLED = False
+KNN_ENABLED = True
+REFERENCE_IMG_PATH = 'ref_img/ref_img6.jpeg'
+
+# calibration
+CALIBRATE_MODE = True
+CALIBRATE_MODE_TRIAL_COUNT = 10
+QR_LENGTH = 10
+OBJ_LENGTH = 15
+
+# misc
+FPS_ON = True
+NO_FRAME_FPS_ON = False
