@@ -57,9 +57,13 @@ class QRFinder:
         pass
 
     def getQRDistance(self):
+        if self.getQRLength() == -1:
+            self.distance = -1.0
+            return -1.0
         focal_len = self.parent.getFocalLength()
         self.distance = (self.real_QR_length * focal_len) / self.getQRLength()
         return self.distance
 
-    def drawDistance(self, frame):
-        print("QR Distance: " + str(self.distance) + "cm")
+    def getDistance(self):
+        print("QR Distance: " + str(self.distance) + " cm")
+        return self.distance

@@ -1,6 +1,7 @@
 import cv2 as cv
 from stream_getter import StreamGetter
 from agent import Agent
+from serial_handler import SerialHandler
 import time
 import numpy as np
 import serial
@@ -9,14 +10,13 @@ from params import *
 def main():
     # serial
     if SERIAL_ON:
-        ser = serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-        ser.reset_input_buffer()
+        serialh = SerialHandler(SERIAL_PORT, SERIAL_BAUDRATE)
 
     # init modules
     stream_getter = StreamGetter(VIDEO_SOURCE)
     stream_getter.startStream()
     frame = stream_getter.getFrame()
-    agent = Agent(TURN_TOLERANCE, VIEW_MODE, QR_LENGTH, REFERENCE_IMG_PATH, QR_ENABLED, CONTOUR_ENABLED, MIDP_ENABLED, BF_ENABLED)
+    agent = Agent(TURN_TOLERANCE, VIEW_MODE, QR_LENGTH, REFERENCE_IMG_PATH, QR_ENABLED, CONTOUR_ENABLED, MIDP_ENABLED, KNN_ENABLED, OBJ_LENGTH)
 
     # camera calibration
     if (not agent.isCalibrated()) and CALIBRATE_MODE:
@@ -66,8 +66,10 @@ def main():
         frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
 
         # process frame
-        agent.process(frame)
-        controls = agent.generateControls()
+        process_results_qr_distance, process_results_obj_corners, process_results_obj_distance = agent.process(frame)
+        controls = []
+        if (process_results_qr_distance != None) and (process_results_obj_corners != None):
+            controls = agent.generateControls(process_results_qr_distance, process_results_obj_corners, process_results_obj_distance)
 
         # output
         if VIEW_MODE:
@@ -76,6 +78,13 @@ def main():
         if FPS_ON:
             print("MAIN: " + str(1/(new_frame_time-prev_frame_time)))
             prev_frame_time = new_frame_time
+        if SERIAL_ON:
+            controls = process_results_obj_distance
+            serialh.sendMsg(controls)
+            if ARDUINO_RESPONSE_ON:
+                arduino_response = serialh.getMsg()
+                if arduino_response is not None:
+                    print(arduino_response)
 
     stream_getter.endStream()
 
