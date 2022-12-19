@@ -39,6 +39,8 @@ class Agent:
                 obj_corners = self.feature_matcher.findObject(frame)
                 if obj_corners is not None:
                     obj_distance = self.feature_matcher.getDistance()
+                else:
+                    print("agent couldn't find object (feature matcher)")
         except:
             print("agent couldn't process frame")
             return None
@@ -65,6 +67,9 @@ class Agent:
 
     def getFocalLength(self):
         return self.focal_length_
+
+    def setFocalLength(self, foc):
+        self.focal_length_ = foc
 
     def initFocalLengthCalibration(self, frame):
         if self.KNN_ENABLED:

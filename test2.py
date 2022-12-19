@@ -5,8 +5,8 @@ import argparse
 import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser(description='Code for Feature Matching with FLANN tutorial.')
-parser.add_argument('--input1', help='Path to input image 1.', default='ref_img/ref_img6.jpeg')
-parser.add_argument('--input2', help='Path to input image 2.', default='test_img/test13.jpeg')
+parser.add_argument('--input1', help='Path to input image 1.', default='ref_img/qr_ref.jpg')
+parser.add_argument('--input2', help='Path to input image 2.', default='test_img/qr_test1.jpeg')
 args = parser.parse_args()
 img_object = cv.imread(cv.samples.findFile(args.input1), cv.IMREAD_GRAYSCALE)
 img_scene = cv.imread(cv.samples.findFile(args.input2), cv.IMREAD_GRAYSCALE)

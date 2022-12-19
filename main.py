@@ -19,7 +19,7 @@ def main():
     agent = Agent(TURN_TOLERANCE, VIEW_MODE, QR_LENGTH, REFERENCE_IMG_PATH, QR_ENABLED, CONTOUR_ENABLED, MIDP_ENABLED, KNN_ENABLED, OBJ_LENGTH)
 
     # camera calibration
-    if (not agent.isCalibrated()) and CALIBRATE_MODE:
+    if CALIBRATE_MODE:
         trials = 0
         camera_calibration_required = input("start camera calibration ? (y/n)")
         while camera_calibration_required != 'n':
@@ -35,8 +35,11 @@ def main():
                         print("Camera calibration failed, terminating.")
                         exit()
                     continue
-
             camera_calibration_required = input("start camera calibration ? (y/n)")
+        if not agent.isCalibrated():
+            agent.setFocalLength(FOCAL_LENGTH)
+    else:
+        agent.setFocalLength(FOCAL_LENGTH)
 
     # fps
     prev_frame_time = 0
@@ -79,7 +82,7 @@ def main():
             print("MAIN: " + str(1/(new_frame_time-prev_frame_time)))
             prev_frame_time = new_frame_time
         if SERIAL_ON:
-            controls = process_results_obj_distance
+            controls = process_results_obj_distance ####################################
             serialh.sendMsg(controls)
             if ARDUINO_RESPONSE_ON:
                 arduino_response = serialh.getMsg()

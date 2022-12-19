@@ -9,9 +9,11 @@ class SerialHandler:
         self.last_received = None
 
     def sendMsg(self, msg):
-        msg = str(msg) + "\n"
+        pure_msg = str(msg)
+        msg = pure_msg + "\n"
         self.ser.write(msg.encode())
-        pass
+        print("sent: " + pure_msg)
+        return
 
     def getMsg(self):
         msg = self.ser.readline().decode('utf-8').rstrip()

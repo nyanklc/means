@@ -33,10 +33,9 @@ class FeatureMatcher:
             print(e)
             return None
         if len(self.good_matches) > 5:
-            print("object found")
-            print("matches len: " + str(len(self.matches)))
-            print("good matches len: " + str(len(self.good_matches)))
-            self.detected = True
+            # print("object found")
+            # print("matches len: " + str(len(self.matches)))
+            # print("good matches len: " + str(len(self.good_matches)))
             try:
                 #-- homography
                 obj = np.empty((len(self.good_matches),2), dtype=np.float32)
@@ -60,11 +59,14 @@ class FeatureMatcher:
                 obj_corners[3,0,0] = 0
                 obj_corners[3,0,1] = self.reference_image.shape[0]
                 self.scene_corners = cv.perspectiveTransform(obj_corners, H)
+                self.detected = True
                 self.getObjDistance()
+                print("object detected: " , str((self.scene_corners[0,0,0], self.scene_corners[0,0,1])), str((self.scene_corners[1,0,0], self.scene_corners[1,0,1])), str((self.scene_corners[2,0,0], self.scene_corners[2,0,1])), str((self.scene_corners[3,0,0], self.scene_corners[3,0,1])))
             except Exception as e:
                 self.scene_corners = None
                 print("object bounding box failed with the exception: ")
                 print(e)
+                self.detected = False
                 return None
         else: # not detected
             self.detected = False
